@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lịch khám bệnh thú y</title>
+  <style>
+    :root{
+      --bg:#F6FEFF;
+      --card:#FFFFFF;
+      --accent:#2FB3A8; /* teal */
+      --muted:#6C7A89;
+      --accent-2:#FFCB77; /* warm highlight */
+      --danger:#E56353;
+      --shadow: 0 6px 18px rgba(12,25,31,0.08);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg),#EAF9F7);
+      color:#102027;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:20px;
+      align-items:start;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:14px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(16,32,39,0.03);
+    }
+
+    header.app-header{
+      display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+    }
+    header.app-header h1{font-size:20px;margin:0}
+    header.app-header p{margin:0;color:var(--muted);font-size:13px}
+
+    .calendar-top{
+      display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
+    }
+    .month-nav{display:flex;gap:8px;align-items:center}
+    .btn{background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    .btn:hover{background:rgba(47,179,168,0.08)}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),#2DAE9F);color:white}
+
+    .month-title{font-size:18px;font-weight:700}
+
+    .weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px}
+    .weekday{font-size:12px;color:var(--muted);text-align:center}
+
+    .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+    .day{
+      min-height:95px;border-radius:10px;padding:8px;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(250,255,254,0.9));border:1px solid rgba(16,32,39,0.04);
+      position:relative;overflow:hidden
+    }
+    .day.out{opacity:0.45}
+    .day .date{font-weight:700;font-size:13px}
+    .add-small{position:absolute;right:8px;top:8px;font-size:12px;padding:6px;border-radius:6px;border:1px dashed rgba(47,179,168,0.25);background:transparent;color:var(--accent);cursor:pointer}
+
+    .appt{display:block;padding:6px 8px;margin-top:8px;border-radius:8px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .appt.pet{background:linear-gradient(90deg,var(--accent-2),#FFD3A5);color:#3E2D07}
+    .appt.check{background:linear-gradient(90deg,#D5FFEE,#BFF0E6);color:#06423B}
+
+    /* right column */
+    .right-col{position:sticky;top:28px}
+    .small{font-size:13px;color:var(--muted)}
+    .upcoming{max-height:360px;overflow:auto;margin-top:10px}
+    .list-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;margin-bottom:8px;background:linear-gradient(180deg,#fff,#fbfffd);border:1px solid rgba(16,32,39,0.03)}
+    .color-dot{width:12px;height:12px;border-radius:50%}
+
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(7,12,13,0.45);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal{width:100%;max-width:520px;background:var(--card);border-radius:12px;padding:18px}
+    .field{margin-bottom:10px}
+    .field label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+    .field input,.field select,.field textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(16,32,39,0.08);font-size:14px}
+    .flex{display:flex;gap:8px}
+
+    footer.note{margin-top:14px;color:var(--muted);font-size:13px;text-align:center}
+
+    @media(max-width:980px){
+      .container{grid-template-columns:1fr;}
+      .right-col{position:relative}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <main class="card">
+      <header class="app-header">
+        <div>
+          <h1>Lịch khám bệnh thú y</h1>
+          <p>Quản lý đặt lịch và theo dõi khám chăm sóc thú nuôi</p>
+        </div>
+        <div>
+          <button class="btn primary" id="addNewBtn">+ Tạo lịch</button>
+        </div>
+      </header>
+
+      <div class="calendar-top">
+        <div class="month-nav">
+          <button class="btn" id="prevBtn" aria-label="tháng trước">‹</button>
+          <div class="month-title" id="monthTitle">Tháng — Năm</div>
+          <button class="btn" id="nextBtn" aria-label="tháng sau">›</button>
+        </div>
+        <div class="small">Hiện tại: <span id="todayLabel"></span></div>
+      </div>
+
+      <div class="weekdays" id="weekdays"></div>
+      <div class="grid" id="calendarGrid"></div>
+
+      <footer class="note">Gợi ý: nhấn "Tạo lịch" hoặc nhấn nút + trên ngày để thêm cuộc hẹn nhanh.</footer>
+    </main>
+
+    <aside class="card right-col">
+      <div>
+        <h3 style="margin:0">Sắp tới</h3>
+        <p class="small">Các cuộc hẹn trong 14 ngày tới</p>
+      </div>
+      <div class="upcoming" id="upcomingList"></div>
+
+      <hr style="margin:12px 0;border:0;border-top:1px solid rgba(16,32,39,0.04)">
+      <div>
+        <h4 style="margin:0">Bộ lọc nhanh</h4>
+        <p class="small">Tìm theo loại thú hoặc trạng thái</p>
+        <div style="margin-top:8px" class="flex">
+          <select id="filterType">
+            <option value="all">Tất cả loại thú</option>
+            <option value="dog">Chó</option>
+            <option value="cat">Mèo</option>
+            <option value="other">Khác</option>
+          </select>
+          <select id="filterStatus">
+            <option value="all">Tất cả</option>
+            <option value="confirmed">Đã xác nhận</option>
+            <option value="pending">Chờ</option>
+          </select>
+        </div>
+        <div style="margin-top:10px" class="flex">
+          <button class="btn" id="clearFilter">Xóa</button>
+          <button class="btn primary" id="applyFilter">Áp dụng</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- modal -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+    <div class="modal" role="document">
+      <h3 id="modalTitle">Tạo cuộc hẹn</h3>
+      <div class="field">
+        <label>Tên chủ / người liên hệ</label>
+        <input id="ownerName" type="text" placeholder="Nguyễn Văn A" />
+      </div>
+      <div class="field">
+        <label>Tên thú</label>
+        <input id="petName" type="text" placeholder="Bông, Miu..." />
+      </div>
+      <div class="field flex">
+        <div style="flex:1">
+          <label>Loại thú</label>
+          <select id="petType"><option value="dog">Chó</option><option value="cat">Mèo</option><option value="other">Khác</option></select>
+        </div>
+        <div style="width:160px">
+          <label>Ngày & giờ</label>
+          <input id="apptDatetime" type="datetime-local" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Ghi chú</label>
+        <textarea id="notes" rows="3" placeholder="Triệu chứng, yêu cầu..."></textarea>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+        <div style="font-size:13px;color:var(--muted)">Trạng thái
+          <select id="status" style="margin-left:8px"><option value="pending">Chờ</option><option value="confirmed">Đã xác nhận</option></select>
+        </div>
+        <div>
+          <button class="btn" id="cancelBtn">Hủy</button>
+          <button class="btn primary" id="saveBtn">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* --- Simple calendar + localStorage appointments --- */
+    const weekdays = ['CN','T2','T3','T4','T5','T6','T7'];
+    const monthTitle = document.getElementById('monthTitle');
+    const weekdaysEl = document.getElementById('weekdays');
+    const grid = document.getElementById('calendarGrid');
+    const todayLabel = document.getElementById('todayLabel');
+    const upcomingList = document.getElementById('upcomingList');
+
+    const modal = document.getElementById('modalBackdrop');
+    const addNewBtn = document.getElementById('addNewBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let view = new Date(); // current month view
+
+    // load or init
+    function loadAppointments(){
+      try{ return JSON.parse(localStorage.getItem('vetAppts')||'[]') }catch(e){return[]}
+    }
+    function saveAppointments(list){ localStorage.setItem('vetAppts', JSON.stringify(list)) }
+
+    function uid(){return 'id'+Math.random().toString(36).slice(2,9)}
+
+    function renderWeekdays(){
+      weekdaysEl.innerHTML='';
+      weekdays.forEach(d=>{
+        const el = document.createElement('div'); el.className='weekday'; el.textContent=d; weekdaysEl.appendChild(el);
+      })
+    }
+
+    function startOfMonth(dt){return new Date(dt.getFullYear(),dt.getMonth(),1)}
+    function endOfMonth(dt){return new Date(dt.getFullYear(),dt.getMonth()+1,0)}
+
+    function renderCalendar(){
+      grid.innerHTML='';
+      const start = startOfMonth(view);
+      const end = endOfMonth(view);
+      const startWeek = start.getDay(); // 0-6 (Sun-Sat)
+      const total = end.getDate();
+
+      monthTitle.textContent = view.toLocaleString('vi-VN',{month:'long',year:'numeric'});
+      todayLabel.textContent = new Date().toLocaleString();
+
+      // previous month's tail
+      const prevEnd = new Date(view.getFullYear(),view.getMonth(),0).getDate();
+      for(let i = startWeek-1; i>=0; i--){
+        const d = document.createElement('div'); d.className='day out';
+        const dayNum = prevEnd - i;
+        d.innerHTML = `<div class="date">${dayNum}</div>`;
+        grid.appendChild(d);
+      }
+
+      // current month
+      for(let d=1; d<=total; d++){
+        const box = document.createElement('div'); box.className='day';
+        const dateStr = new Date(view.getFullYear(),view.getMonth(),d).toISOString().slice(0,10);
+        box.dataset.date = dateStr;
+        box.innerHTML = `<div class="date">${d}</div><button class="add-small" title="Thêm">+</button>`;
+        box.querySelector('.add-small').addEventListener('click', (e)=>{ e.stopPropagation(); openModalForDate(dateStr) });
+        box.addEventListener('click', ()=>{ openModalForDate(dateStr) });
+        grid.appendChild(box);
+      }
+
+      // next month's head to fill week
+      const cells = grid.children.length;
+      const toAdd = (7 - (cells % 7)) % 7;
+      for(let i=1;i<=toAdd;i++){
+        const d = document.createElement('div'); d.className='day out'; d.innerHTML = `<div class="date">${i}</div>`; grid.appendChild(d);
+      }
+
+      renderAppointmentsOnCalendar();
+    }
+
+    function renderAppointmentsOnCalendar(){
+      const appts = loadAppointments();
+      // clear existing badges
+      Array.from(document.querySelectorAll('.day')).forEach(node=>{
+        Array.from(node.querySelectorAll('.appt')).forEach(n=>n.remove())
+      });
+
+      appts.forEach(a=>{
+        const el = document.querySelector(`.day[data-date='${a.date}']`);
+        if(!el) return;
+        const item = document.createElement('span'); item.className='appt '+(a.petType==='dog'?'pet':'check');
+        item.title = `${a.time} — ${a.owner} • ${a.pet}`;
+        item.textContent = `${a.time} • ${a.pet}`;
+        item.addEventListener('click', (e)=>{ e.stopPropagation(); openModalForEdit(a.id) });
+        el.appendChild(item);
+      });
+
+      renderUpcoming();
+    }
+
+    function renderUpcoming(){
+      upcomingList.innerHTML='';
+      const appts = loadAppointments().slice().sort((a,b)=> new Date(a.date+'T'+a.time) - new Date(b.date+'T'+b.time));
+      const now = new Date();
+      const soon = appts.filter(a=>{
+        const dt = new Date(a.date+'T'+a.time);
+        const diff = (dt - now)/(1000*60*60*24);
+        return diff >= -0.5 && diff <= 14; // from now to 14 days
+      }).slice(0,20);
+
+      if(soon.length===0){ upcomingList.innerHTML = '<p class="small">Không có cuộc hẹn sắp tới</p>'; return }
+
+      soon.forEach(a=>{
+        const it = document.createElement('div'); it.className='list-item';
+        it.innerHTML = `<div style='flex:1'><div style='display:flex;justify-content:space-between;align-items:center'><strong>${a.pet} — ${a.owner}</strong><small class="small">${a.date} ${a.time}</small></div><div class='small'>${a.notes||''}</div></div>`;
+        it.addEventListener('click', ()=> openModalForEdit(a.id));
+        upcomingList.appendChild(it);
+      })
+    }
+
+    // modal logic
+    const ownerName = document.getElementById('ownerName');
+    const petName = document.getElementById('petName');
+    const petType = document.getElementById('petType');
+    const apptDatetime = document.getElementById('apptDatetime');
+    const notes = document.getElementById('notes');
+    const status = document.getElementById('status');
+    const modalTitle = document.getElementById('modalTitle');
+
+    let editingId = null;
+
+    function openModalForDate(dateStr){
+      editingId = null; modalTitle.textContent='Tạo cuộc hẹn';
+      ownerName.value=''; petName.value=''; petType.value='dog'; notes.value=''; status.value='pending';
+      // default time at 09:00
+      apptDatetime.value = dateStr + 'T09:00';
+      showModal();
+    }
+
+    function openModalForEdit(id){
+      const appts = loadAppointments();
+      const a = appts.find(x=>x.id===id); if(!a) return;
+      editingId = id; modalTitle.textContent='Chỉnh sửa cuộc hẹn';
+      ownerName.value = a.owner; petName.value = a.pet; petType.value=a.petType; notes.value=a.notes||''; status.value=a.status||'pending';
+      apptDatetime.value = a.date + 'T' + a.time;
+      showModal();
+    }
+
+    function showModal(){ modal.style.display='flex'; modal.querySelector('.modal').focus(); }
+    function hideModal(){ modal.style.display='none'; }
+
+    document.getElementById('cancelBtn').addEventListener('click', hideModal);
+    modal.addEventListener('click', (e)=>{ if(e.target===modal) hideModal(); });
+
+    document.getElementById('saveBtn').addEventListener('click', ()=>{
+      const dt = apptDatetime.value; if(!dt){ alert('Chọn ngày và giờ'); return }
+      const [datePart,timePart] = dt.split('T');
+      const list = loadAppointments();
+      if(editingId){
+        const idx = list.findIndex(x=>x.id===editingId);
+        if(idx>=0){ list[idx] = {...list[idx], owner:ownerName.value, pet:petName.value, petType:petType.value, date:datePart, time:timePart, notes:notes.value, status:status.value }; saveAppointments(list); }
+      }else{
+        const newAppt = {id:uid(), owner:ownerName.value, pet:petName.value, petType:petType.value, date:datePart, time:timePart, notes:notes.value, status:status.value };
+        list.push(newAppt); saveAppointments(list);
+      }
+      hideModal(); renderAppointmentsOnCalendar();
+    });
+
+    // navigation
+    prevBtn.addEventListener('click', ()=>{ view = new Date(view.getFullYear(), view.getMonth()-1,1); renderCalendar(); });
+    nextBtn.addEventListener('click', ()=>{ view = new Date(view.getFullYear(), view.getMonth()+1,1); renderCalendar(); });
+
+    addNewBtn.addEventListener('click', ()=>{ const today = new Date(); const dateStr = today.toISOString().slice(0,10); openModalForDate(dateStr) });
+
+    // filters
+    document.getElementById('applyFilter').addEventListener('click', ()=>{ applyFilter(); });
+    document.getElementById('clearFilter').addEventListener('click', ()=>{ document.getElementById('filterType').value='all'; document.getElementById('filterStatus').value='all'; renderAppointmentsOnCalendar(); });
+
+    function applyFilter(){
+      const t = document.getElementById('filterType').value;
+      const s = document.getElementById('filterStatus').value;
+      Array.from(document.querySelectorAll('.appt')).forEach(n=> n.style.display='block');
+      const appts = loadAppointments();
+      appts.forEach(a=>{
+        const el = document.querySelector(`.day[data-date='${a.date}']`);
+        if(!el) return;
+        const nodes = Array.from(el.querySelectorAll('.appt')).filter(x=> x.title.includes(a.pet));
+        nodes.forEach(node=>{
+          let hide=false;
+          if(t!=='all' && a.petType!==t) hide=true;
+          if(s!=='all' && a.status!==s) hide=true;
+          node.style.display = hide? 'none' : 'block';
+        })
+      })
+    }
+
+    // initial render
+    renderWeekdays(); renderCalendar();
+
+    // accessibility: keyboard close modal with Escape
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') hideModal(); });
+
+    // sample data for first run
+    if(loadAppointments().length===0){
+      const sample = [
+        {id:uid(), owner:'Nguyễn Văn A', pet:'Bông', petType:'dog', date: new Date().toISOString().slice(0,10), time:'09:00', notes:'Tiêm phòng', status:'confirmed'},
+        {id:uid(), owner:'Lê Thị B', pet:'Miu', petType:'cat', date: new Date(Date.now()+86400000).toISOString().slice(0,10), time:'10:30', notes:'Kiểm tra tai', status:'pending'}
+      ];
+      saveAppointments(sample);
+      renderAppointmentsOnCalendar();
+    }
+
+  </script>
+</body>
+</html>
