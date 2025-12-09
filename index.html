@@ -1,114 +1,194 @@
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Trịnh Thị Hồng Mơ — Thông tin cá nhân</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Đăng ký khám bệnh thú y</title>
   <style>
-    :root{--accent:#ef4444;--soft:#fef3f2}
-    body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
-    .glass{background:linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.55));backdrop-filter: blur(6px);}
+    :root{--bg:#f6f8fa;--card:#ffffff;--accent:#2b7cff;--muted:#6b7280}
+    body{font-family:Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);margin:0;padding:24px;color:#111}
+    .container{max-width:900px;margin:0 auto}
+    header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .card{background:var(--card);padding:20px;border-radius:10px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+    form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+    input[type=text],input[type=email],input[type=tel],input[type=number],select,textarea,input[type=date],input[type=time]{width:100%;padding:8px;border:1px solid #e6e9ee;border-radius:6px;font-size:14px}
+    textarea{min-height:100px;resize:vertical}
+    .full{grid-column:1/ -1}
+    .row{display:flex;gap:8px}
+    .actions{display:flex;justify-content:space-between;align-items:center;margin-top:12px;grid-column:1/-1}
+    button{background:var(--accent);color:white;border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .muted{color:var(--muted);font-size:13px}
+    .error{color:#b91c1c;font-size:13px}
+    @media (max-width:720px){form{grid-template-columns:1fr}}
   </style>
 </head>
-<body class="bg-gradient-to-b from-yellow-50 via-white to-indigo-50 min-h-screen text-slate-800">
-  <header class="max-w-6xl mx-auto p-6">
-    <div class="flex items-center gap-6">
-      <div class="w-28 h-28 rounded-full bg-gradient-to-br from-yellow-300 to-rose-300 flex items-center justify-center shadow-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zM6 20a6 6 0 0112 0" />
-        </svg>
-      </div>
-      <div>
-        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900">Trịnh Thị Hồng Mơ</h1>
-        <p class="mt-1 text-sm text-slate-600">Giảng viên · Chuyên ngành: Chăn nuôi / Thú y</p>
-        <div class="mt-3 text-slate-700 text-sm flex gap-4 flex-wrap">
-          <div>📞 0842.621.999</div>
-          <div>✉️ <a href="mailto:tthmo@tdu.edu.vn" class="text-rose-600 hover:underline">tthmo@tdu.edu.vn</a></div>
+<body>
+  <div class="container">
+    <header>
+      <h1>Đăng ký khám bệnh thú y</h1>
+    </header>
+
+    <section class="card">
+      <form id="regForm" novalidate>
+        <fieldset class="full">
+          <legend style="font-weight:600;margin-bottom:8px">Thông tin chủ nuôi</legend>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label for="ownerName">Họ và tên *</label>
+              <input id="ownerName" name="ownerName" type="text" required />
+            </div>
+            <div>
+              <label for="ownerPhone">Số điện thoại *</label>
+              <input id="ownerPhone" name="ownerPhone" type="tel" pattern="[0-9+()\-\s]{7,}" required />
+            </div>
+            <div>
+              <label for="ownerEmail">Email</label>
+              <input id="ownerEmail" name="ownerEmail" type="email" />
+            </div>
+            <div>
+              <label for="ownerAddress">Địa chỉ</label>
+              <input id="ownerAddress" name="ownerAddress" type="text" />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="full">
+          <legend style="font-weight:600;margin-bottom:8px">Thông tin thú nuôi</legend>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label for="petName">Tên thú nuôi *</label>
+              <input id="petName" name="petName" type="text" required />
+            </div>
+            <div>
+              <label for="species">Loài *</label>
+              <select id="species" name="species" required>
+                <option value="">Chọn...</option>
+                <option>Chó</option>
+                <option>Mèo</option>
+                <option>Gà</option>
+                <option>Khác</option>
+              </select>
+            </div>
+            <div>
+              <label for="breed">Giống</label>
+              <input id="breed" name="breed" type="text" />
+            </div>
+            <div>
+              <label for="age">Tuổi (năm)</label>
+              <input id="age" name="age" type="number" min="0" step="0.1" />
+            </div>
+            <div>
+              <label>Giới tính</label>
+              <div class="row">
+                <label><input type="radio" name="sex" value="Đực" /> Đực</label>
+                <label><input type="radio" name="sex" value="Cái" /> Cái</label>
+                <label><input type="radio" name="sex" value="Không rõ" checked /> Không rõ</label>
+              </div>
+            </div>
+            <div>
+              <label for="weight">Cân nặng (kg)</label>
+              <input id="weight" name="weight" type="number" min="0" step="0.1" />
+            </div>
+            <div class="full">
+              <label for="symptoms">Triệu chứng / Lý do khám *</label>
+              <textarea id="symptoms" name="symptoms" required></textarea>
+            </div>
+            <div>
+              <label for="vaccinated">Tình trạng tiêm chủng</label>
+              <select id="vaccinated" name="vaccinated">
+                <option value="">Chọn...</option>
+                <option value="yes">Đã tiêm</option>
+                <option value="no">Chưa tiêm</option>
+                <option value="unknown">Không rõ</option>
+              </select>
+            </div>
+            <div>
+              <label for="microchip">Số microchip / ID</label>
+              <input id="microchip" name="microchip" type="text" />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="full">
+          <legend style="font-weight:600;margin-bottom:8px">Lịch hẹn và liên hệ khẩn</legend>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label for="apptDate">Ngày hẹn</label>
+              <input id="apptDate" name="apptDate" type="date" />
+            </div>
+            <div>
+              <label for="apptTime">Thời gian</label>
+              <input id="apptTime" name="apptTime" type="time" />
+            </div>
+            <div>
+              <label for="emergencyName">Người liên hệ khẩn</label>
+              <input id="emergencyName" name="emergencyName" type="text" />
+            </div>
+            <div>
+              <label for="emergencyPhone">SĐT liên hệ khẩn</label>
+              <input id="emergencyPhone" name="emergencyPhone" type="tel" />
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="full">
+          <label><input id="consent" name="consent" type="checkbox" required /> Tôi đồng ý cung cấp thông tin và nhận liên lạc từ phòng khám *</label>
         </div>
-      </div>
-      <div class="ml-auto text-right text-sm text-slate-600">
-        <div>Địa chỉ: A10-24 Đường số 7, Khu dân cư Hoàng Quân, P. Cái Răng, TP. Cần Thơ</div>
-        <div class="mt-1">Nơi công tác: Trường Đại học Tây Đô</div>
-      </div>
-    </div>
-  </header>
 
-  <main class="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Left column -->
-    <section class="lg:col-span-2 glass p-6 rounded-2xl shadow">
-      <h2 class="text-2xl font-bold text-slate-900">Tóm tắt</h2>
-      <p class="mt-3 text-slate-700">Giảng viên chuyên ngành Chăn nuôi và Thú y tại Trường Đại học Tây Đô. Quan tâm nghiên cứu các giải pháp công nghệ trong chăn nuôi, kiểm soát dịch bệnh, và cải thiện hiệu suất sinh sản vật nuôi.</p>
-
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="p-4 bg-white/70 rounded-lg">
-          <h3 class="font-semibold">Học vấn</h3>
-          <ul class="mt-2 text-sm text-slate-700 space-y-1">
-            <li>Đại học: Đại học Cần Thơ — Chăn nuôi (2016)</li>
-            <li>Thạc sỹ: Đại học Cần Thơ — Thú y (2018)</li>
-          </ul>
+        <div class="actions">
+          <div class="muted">Các trường có dấu * là bắt buộc</div>
+          <div>
+            <button type="submit" id="submitBtn">Gửi đăng ký</button>
+          </div>
         </div>
-        <div class="p-4 bg-white/70 rounded-lg">
-          <h3 class="font-semibold">Công tác</h3>
-          <p class="mt-2 text-sm text-slate-700">Giảng viên, Trường Đại học Tây Đô (2019 — nay)</p>
-          <p class="mt-1 text-xs text-slate-500">Địa chỉ nơi làm việc: Số 68 đường Trần Chiên, khu vực Thạnh Mỹ, P. Cái Răng, TP. Cần Thơ</p>
-        </div>
-      </div>
-
-      <div class="mt-6">
-        <h3 class="text-lg font-semibold">Công trình tiêu biểu</h3>
-        <ol class="mt-3 list-decimal pl-5 text-slate-700 space-y-2 text-sm">
-          <li>Effects of wilting and rice bran supplementation on the quality of taro (Colocasia esculenta) leaf and petiole silage. — Livestock Research for Rural Development (2020)</li>
-          <li>Comparison of the effects of two poultry housing types on reproductive performance of tre chicken — JAHST (2021)</li>
-          <li>Application of Phage to Control Escherichia coli Infection in Native Noi Chickens — Advances in Animal and Veterinary Sciences (2022)</li>
-          <li>The effect of different media and temperature conditions for Salmonella bacteriophage preservation — Veterinary Integrative Sciences (2022)</li>
-          <li>Khảo sát bệnh tiêu chảy do Parvovirus gây ra trên chó và theo dõi hiệu quả điều trị — Tạp chí khoa học Trường Đại học Bạc Liêu (2023)</li>
-          <li>Ảnh hưởng của tần suất khai thác đến chất lượng tinh trùng vịt Xiêm — Tạp chí Khoa học Công nghệ Chăn nuôi (2025)</li>
-        </ol>
-
-        <div class="mt-4 text-xs text-slate-500">Danh sách công trình trích từ hồ sơ cá nhân. Xem phần "Publications" để biết chi tiết hơn.</div>
-      </div>
-
-      <div class="mt-6 flex gap-3">
-        <a href="#contact" class="px-4 py-2 bg-rose-500 text-white rounded-md shadow hover:bg-rose-600">Liên hệ</a>
-        <a href="#publications" class="px-4 py-2 border border-rose-500 text-rose-600 rounded-md hover:bg-rose-50">Xem publications</a>
-      </div>
+        <div id="msg" class="full" aria-live="polite"></div>
+      </form>
     </section>
+  </div>
 
-    <!-- Right column -->
-    <aside class="p-6 glass rounded-2xl shadow">
-      <h3 class="text-lg font-semibold">Thông tin liên hệ</h3>
-      <ul class="mt-3 text-sm text-slate-700 space-y-2">
-        <li><strong>Họ và tên:</strong> Trịnh Thị Hồng Mơ</li>
-        <li><strong>Ngày sinh:</strong> 23/03/1993</li>
-        <li><strong>Điện thoại:</strong> 0842.621.999</li>
-        <li><strong>Email:</strong> <a href="mailto:tthmo@tdu.edu.vn" class="text-rose-600">tthmo@tdu.edu.vn</a></li>
-        <li><strong>Địa chỉ:</strong> A10-24 Đường số 7, Khu dân cư Hoàng Quân, P. Cái Răng, TP. Cần Thơ</li>
-        <li><strong>Nơi công tác:</strong> Trường Đại học Tây Đô</li>
-      </ul>
+  <script>
+    (function(){
+      const form = document.getElementById('regForm');
+      const msg = document.getElementById('msg');
+      const submitBtn = document.getElementById('submitBtn');
 
-      <div class="mt-6">
-        <h4 class="font-semibold">Kỹ năng & Quan tâm</h4>
-        <div class="mt-2 flex flex-wrap gap-2">
-          <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Chăn nuôi</span>
-          <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Thú y</span>
-          <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Nghiên cứu</span>
-          <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Công nghệ chăn nuôi</span>
-        </div>
-      </div>
+      function showMessage(text, isError){
+        msg.textContent = text;
+        msg.className = isError ? 'error' : 'muted';
+      }
 
-      <div class="mt-6">
-        <h4 class="font-semibold">Tải hồ sơ</h4>
-        <p class="text-xs text-slate-500 mt-2">Tải bản PDF lý lịch khoa học (nếu có)</p>
-        <a class="inline-block mt-3 px-4 py-2 bg-white border border-slate-200 rounded-md text-sm shadow-sm" href="#">Tải PDF</a>
-      </div>
-    </aside>
-  </main>
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        // simple constraint validation
+        if(!form.reportValidity()){
+          showMessage('Vui lòng hoàn tất các trường bắt buộc.', true);
+          return;
+        }
 
-  <footer class="max-w-6xl mx-auto p-6 text-center text-sm text-slate-500">
-    <div>© Trịnh Thị Hồng Mơ — Thông tin trích từ hồ sơ cá nhân.</div>
-    <div class="mt-1">Cập nhật: 09/12/2025</div>
-  </footer>
+        submitBtn.disabled = true;
+        showMessage('Đang gửi...');
+
+        // Simulate sending data (replace with real POST to backend)
+        const data = new FormData(form);
+        const obj = {};
+        data.forEach((v,k)=>{
+          if(obj[k] !== undefined){
+            if(!Array.isArray(obj[k])) obj[k]=[obj[k]];
+            obj[k].push(v);
+          } else obj[k]=v;
+        });
+
+        // Fake async
+        setTimeout(()=>{
+          submitBtn.disabled = false;
+          showMessage('Đăng ký đã được ghi nhận. Chúng tôi sẽ liên hệ với bạn sớm.');
+          form.reset();
+        },800);
+      });
+    })();
+  </script>
 </body>
 </html>
